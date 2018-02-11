@@ -2,13 +2,12 @@ library(vkR)
 library(testthat)
 options(scipen = 999)
 
-setwd("./data/")
-
 at <- "d75deb97e8e79b03fb86565adb1353e23e2c7dd0cb44106cdc55f05227ad0b3e64e152a685456ac4cc421"
 setAccessToken(access_token = at)
 
 # Parameters
-number <- 10000000
+number <- 100000
+
 
 # Set fields to get
 fields <- paste("city, country, bdate, sex, last_seen",
@@ -46,7 +45,7 @@ get_profiles <- function(fields,
   
   for (i in batched_ids[2:length(batched_ids)]){
       print(paste0(c,"/", length(batched_ids),"..." ))
-      try_again(n_try, d <- getUsersExecute(i, fields = fields,flatten = T,progress_bar = T))
+      try_again(n_try, d <- getUsersExecute(i, fields = fields,flatten = T))
       rownames(d) <- d$id
       data <- rbind(data,d)
       c <- c + 1
@@ -74,7 +73,7 @@ save_profiles <- function(dataframe,
 
 df <- get_profiles(fields, n = number)
 
-save_profiles(df, gzip = F)
+save_profiles(file.path("data",df), gzip = F)
 
 #data <- read.csv("vk_100profiles_2018-02-07.csv")
 
