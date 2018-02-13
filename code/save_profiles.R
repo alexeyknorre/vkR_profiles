@@ -7,8 +7,7 @@ at <- "d75deb97e8e79b03fb86565adb1353e23e2c7dd0cb44106cdc55f05227ad0b3e64e152a68
 setAccessToken(access_token = at)
 
 # Parameters
-number <- 1000
-
+number <- 100000
 
 # Set fields to get
 fields <- paste("city, country, bdate, sex, last_seen",
@@ -16,9 +15,19 @@ fields <- paste("city, country, bdate, sex, last_seen",
                 "books, music, games, interests, movies, tv",
                 sep = ", ")
 
+# Set fields to subset
+fields_wide <- c("id", "first_name", "last_name", "sex", "bdate", "university", 
+  "university_name", "faculty", "faculty_name", "graduation", "home_town", 
+  "interests", "music", "movies", "tv", "books", "games", "education_form", 
+  "education_status", "last_seen.time", "last_seen.platform", "city.id", 
+  "city.title", "country.id", "country.title", "personal.langs", 
+  "personal.political", "personal.religion", "personal.inspired_by", 
+  "personal.people_main", "personal.life_main", "personal.smoking", 
+  "personal.alcohol", "career_position")
+
 get_profiles <- function(fields,
                          n,
-                         batch_size = 500,
+                         batch_size = 5000,
                          n_try = 10) {
   start_time <- Sys.time()
   
@@ -45,15 +54,13 @@ get_profiles <- function(fields,
   try_again(n_try, data <- getUsersExecute(start_ids, fields = fields,flatten = T, drop = T))
   #data <- getUsersExecute(start_ids, fields = fields,flatten = T)
   data <- as.data.table(data)
-  df <- save_profiles(data, file_name, file_append = F)
-  return(df)
+  save_profiles(data, file_name, file_append = F)
   c <- 2
   
   
   for (i in batched_ids[2:length(batched_ids)]){
       print(paste0(c,"/", length(batched_ids),"..." ))
       try_again(n_try, d <- getUsersExecute(i, fields = fields,flatten = T, drop = T))
-      #d <- getUsersExecute(i, fields = fields,flatten = T)
       rownames(d) <- d$id
       d <- as.data.table(d)
       save_profiles(d, file_name)
@@ -79,35 +86,9 @@ save_profiles <- function(dataframe,
   dataframe$career_position[dataframe$career_position == "NULL"] <- NA
   dataframe$career <- NULL
   
-  dataframe <- dataframe[,c("id", "first_name", "last_name", "sex", "bdate", "university", 
-                          "university_name", "faculty", "faculty_name", "graduation", "home_town", 
-                          "interests", "music", "movies", "tv", "books", "games", "education_form", 
-                          "education_status", "last_seen.time", "last_seen.platform", "city.id", 
-                          "city.title", "country.id", "country.title", "personal.langs", 
-                          "personal.political", "personal.religion", "personal.inspired_by", 
-                          "personal.people_main", "personal.life_main", "personal.smoking", 
-                          "personal.alcohol", "career_position")]
-  return(dataframe)
+  # Subset fields to maintain structure
+  dataframe <- dataframe[,fields_wide]
   fwrite(dataframe, file_path, append = file_append, na = "",quote = T)
 }
 
-
-
-# save_profiles <- function(dataframe,
-#                           gzip = T) {
-#   if(gzip == T)
-#   {
-#     z <- gzfile(paste0("vk_",nrow(dataframe),"profiles_", Sys.Date(),".csv.gz"))
-#     write.csv(dataframe, z, row.names = F)
-#   }
-#   else{
-#     write.csv(dataframe, paste0("vk_",nrow(dataframe),"profiles_", Sys.Date(),".csv"),
-#               row.names = F)
-#   }
-# }
-
-df <- get_profiles(fields, n = number)
-
-#data <- readr::read_csv("data/vk_10000profiles_2018-02-13.csv",locale = )
-#data <- fread("data/vk_10000profiles_2018-02-13.csv", na.strings = "",encoding = "CP1251")
-
+get_profiles(fields, n = number)
