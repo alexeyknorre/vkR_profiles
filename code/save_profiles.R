@@ -7,7 +7,7 @@ at <- "d75deb97e8e79b03fb86565adb1353e23e2c7dd0cb44106cdc55f05227ad0b3e64e152a68
 setAccessToken(access_token = at)
 
 ## Parameters #####
-number <- 10000
+number <- 10000000
 
 # Set fields to get
 fields <- paste("city, country, bdate, sex, last_seen",
@@ -26,7 +26,7 @@ get_profiles <- function(n,
                          #fields,
                          #fields_wide,
                          batch_size = 5000,
-                         n_try = 10) {
+                         n_try = 30) {
   start_time <- Sys.time()
   
   #profile_fields <- fields
@@ -97,4 +97,4 @@ save_profiles <- function(dataframe,
 
 get_profiles(number)
 
-#data <- readr::read_csv("data/vk_10000profiles_2018-02-13.csv")
+#data <- readr::read_csv("data/vk_10000000profiles_2018-02-14.csv")
