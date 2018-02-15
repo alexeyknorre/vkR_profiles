@@ -3,7 +3,8 @@ library(testthat)
 library(data.table)
 options(scipen = 999)
 
-at <- "d75deb97e8e79b03fb86565adb1353e23e2c7dd0cb44106cdc55f05227ad0b3e64e152a685456ac4cc421"
+# Load access token. Make your own beforehand.
+at <- readLines("code/token.txt",warn = F)
 setAccessToken(access_token = at)
 
 ## Parameters #####
@@ -35,7 +36,7 @@ get_profiles <- function(n,
   file_name <- paste0("data/","vk_",n,"profiles_", Sys.Date(),".csv")
   
   # Generate random ids
-  ids <- sample(1:430e6, n)
+  ids <- sample(1:430e6, n*1.4)
   
   # Hook if n is small
   if(n <= batch_size){
@@ -96,5 +97,3 @@ save_profiles <- function(dataframe,
 ### Main call ######
 
 get_profiles(number)
-
-#data <- readr::read_csv("data/vk_10000000profiles_2018-02-14.csv")
