@@ -1,6 +1,5 @@
 library(vkR)
 library(testthat)
-library(data.table)
 options(scipen = 999)
 
 # Load access token. Make your own beforehand.
@@ -24,15 +23,10 @@ fields_wide <- c("id", "first_name", "last_name", "sex", "bdate",
 ### Functions #####
 
 get_profiles <- function(n,
-                         #fields,
-                         #fields_wide,
                          batch_size = 5000,
                          n_try = 30) {
   start_time <- Sys.time()
-  
-  #profile_fields <- fields
-  #profile_fields_wide <- fields_wide
-  
+
   file_name <- paste0("data/","vk_",n,"profiles_", Sys.Date(),".csv")
   
   # Generate random ids
@@ -41,7 +35,6 @@ get_profiles <- function(n,
   # Hook if n is small
   if(n <= batch_size){
     data <- getUsersExecute(ids, fields = fields, flatten = T, drop = T)
-    #save_profiles(data, profile_fields_wide, file_name, file_append = F)
     save_profiles(data, fields_wide, file_name, file_append = F)
   }
   
@@ -55,9 +48,6 @@ get_profiles <- function(n,
   
   start_ids <- as.numeric(unlist(batched_ids[1]))
   try_again(n_try, data <- getUsersExecute(start_ids, fields,flatten = T, drop = T))
-  #data <- getUsersExecute(start_ids, fields = fields,flatten = T)
-  data <- as.data.table(data)
-  #save_profiles(data, profile_fields_wide, file_name, file_append = F)
   save_profiles(data, file_name, file_append = F)
   c <- 2
   
@@ -66,8 +56,6 @@ get_profiles <- function(n,
     print(paste0(c,"/", length(batched_ids),"..." ))
     try_again(n_try, d <- getUsersExecute(i, fields = fields,flatten = T, drop = T))
     rownames(d) <- d$id
-    d <- as.data.table(d)
-    #save_profiles(d, profile_fields_wide, file_name)
     save_profiles(d, file_name)
     c <- c + 1
   }
@@ -90,8 +78,8 @@ save_profiles <- function(dataframe,
   dataframe$career <- NULL
   
   # Subset fields to maintain structure
-  dataframe <- dataframe[,..fields_wide]
-  fwrite(dataframe, file_path, append = file_append, na = "", quote = T)
+  dataframe <- dataframe[,fields_wide]
+  write.csv(dataframe, file_path, na = "", quote = T, row.names = F)
 }
 
 ### Main call ######
