@@ -79,7 +79,8 @@ save_profiles <- function(dataframe,
   
   # Subset fields to maintain structure
   dataframe <- dataframe[,fields_wide]
-  write.csv(dataframe, file_path, na = "", quote = T, row.names = F)
+  write.table(dataframe, file_path, na = "", sep = ",", quote = T,
+              row.names = F, append = file_append, col.names = !file_append)
 }
 
 ### Main call ######
